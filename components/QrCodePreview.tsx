@@ -1,10 +1,9 @@
-import React, { useRef, useEffect, useState, useMemo } from 'https://esm.sh/react@19.1.1';
-import QRCodeStyling, { Options as LibOptions } from 'https://esm.sh/qr-code-styling@1.9.2';
-import { Canvg } from 'https://esm.sh/canvg@4.0.2';
-import { QrCodeOptions, CornerSquareType } from '../types.js';
-import { ELEGANT_CROSS_SVG_PATH } from '../constants.js';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
+import QRCodeStyling from 'qr-code-styling';
+import { Canvg } from 'canvg';
+import { ELEGANT_CROSS_SVG_PATH } from '../constants.jsx';
 
-const DOT_SHAPE_PATHS: Record<string, string> = {
+const DOT_SHAPE_PATHS = {
     square: 'M 0 0 H 1 V 1 H 0 Z',
     dots: 'M 0.5,0.5 m -0.5,0 a 0.5,0.5 0 1,0 1,0 a 0.5,0.5 0 1,0 -1,0',
     rounded: 'M 0.2,0 H 0.8 A 0.2,0.2 0 0 1 1,0.2 V 0.8 A 0.2,0.2 0 0 1 0.8,1 H 0.2 A 0.2,0.2 0 0 1 0,0.8 V 0.2 A 0.2,0.2 0 0 1 0.2,0 Z',
@@ -14,20 +13,20 @@ const DOT_SHAPE_PATHS: Record<string, string> = {
 };
 
 // All eye paths are defined in a 7x7 module coordinate system, centered at (0,0)
-const EYE_FRAME_PATHS: Record<string, string> = {
+const EYE_FRAME_PATHS = {
     square: 'M41,7V41H7V7H41m7-7H0V48H48V0Z',
     'extra-rounded': 'M33,7a8,8,0,0,1,8,8V33a8,8,0,0,1-8,8H15a8,8,0,0,1-8-8V15a8,8,0,0,1,8-8H33m0-7H15A15,15,0,0 ,0,0,15V33A15,15,0,0,0,15,48H33A15,15,0,0,0,48,33V15A15,15,0,0,0,33,0Z',
     dot: 'M24,7A17,17,0,1,1,7,24,17,17,0,0,1,24,7m0-7A24,24,0,1,0,48,24,24,24,0,0,0,24,0Z',
     drop: 'M30.87,7A10.14,10.14,0,0,1,41,17.13V41H17.13A10.14,10.14,0,0,1, 7,30.87V17.13A10.14,10.14,0,0,1,17.13,7H30.87m0-7H17.13A17.13,17.13 ,0,0,0,0,17.13V30.87A17.13,17.13,0,0,0,17.13,48H41.32A6.68,6.68,0,0 ,0,48,41.32V17.13A17.13,17.13,0,0,0,30.87,0Z'
 };
 
-const EYE_BALL_PATHS: Record<string, string> = {
+const EYE_BALL_PATHS = {
     square: 'M -1.2 -1.2 H 1.2 V 1.2 H -1.2 Z',
     dot: 'M0 -1.2 A1.2 1.2 0 1 1 0 1.2 A1.2 1.2 0 1 1 0 -1.2 Z',
     oval: 'M0 -1.5 A1.2 1.5 0 1 1 0 1.5 A1.2 1.5 0 1 1 0 -1.5 Z',
 }
 
-const generateQrSvg = (qrInstance: QRCodeStyling | null, options: QrCodeOptions): string => {
+const generateQrSvg = (qrInstance, options) => {
     if (!qrInstance || !qrInstance._qr) return '';
     
     const count = qrInstance._qr.getModuleCount();
@@ -49,12 +48,12 @@ const generateQrSvg = (qrInstance: QRCodeStyling | null, options: QrCodeOptions)
     if (qrContentSize <= 0) return '';
     const dotSize = qrContentSize / count;
 
-    const getFill = (opts: any, id: string) => {
+    const getFill = (opts, id) => {
         if (opts?.gradient) {
             const rotation = opts.gradient.rotation || 0;
             const x1 = Math.round(Math.cos(rotation) * 100);
             const y1 = Math.round(Math.sin(rotation) * 100);
-            const stops = opts.gradient.colorStops.map((cs: any) => `<stop offset="${cs.offset * 100}%" stop-color="${cs.color}" />`).join('');
+            const stops = opts.gradient.colorStops.map((cs) => `<stop offset="${cs.offset * 100}%" stop-color="${cs.color}" />`).join('');
             return {
                 def: `<linearGradient id="${id}" x1="0%" y1="0%" x2="${x1}%" y2="${y1}%">${stops}</linearGradient>`,
                 fill: `url(#${id})`
@@ -69,18 +68,18 @@ const generateQrSvg = (qrInstance: QRCodeStyling | null, options: QrCodeOptions)
 
     let defs = `<defs>${dotsFill.def}${cornersSquareFill.def}${cornersDotFill.def}</defs>`;
     
-    let dotPaths: string[] = [];
-    let eyePaths: string[] = [];
+    let dotPaths = [];
+    let eyePaths = [];
 
-    const isEye = (r: number, c: number) => (r < 7 && c < 7) || (r < 7 && c > count - 8) || (r > count - 8 && c < 7);
+    const isEye = (r, c) => (r < 7 && c < 7) || (r < 7 && c > count - 8) || (r > count - 8 && c < 7);
 
-    let logoSafeZone: { x: number; y: number; width: number; height: number } | null = null;
+    let logoSafeZone = null;
     if (imageUrl && imageOptions?.hideBackgroundDots) {
         const imageSizeFactor = imageOptions.imageSize || 0.4;
         const aspectRatio = imageOptions.aspectRatio || 1; 
 
-        let safeZoneWidthInModules: number;
-        let safeZoneHeightInModules: number;
+        let safeZoneWidthInModules;
+        let safeZoneHeightInModules;
 
         if (aspectRatio >= 1) { // Landscape or square image
             safeZoneWidthInModules = count * imageSizeFactor;
@@ -174,7 +173,7 @@ const generateQrSvg = (qrInstance: QRCodeStyling | null, options: QrCodeOptions)
 };
 
 
-const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean }> = ({ options, showDownloads = true }) => {
+const QrCodePreview = ({ options, showDownloads = true }) => {
   const qrInstance = useMemo(() => {
     const { dotsOptions, cornersSquareOptions, cornersDotOptions, imageOptions, ...restOfOptions } = options;
     const { size, type: dotsType, ...restOfDotsOptions } = dotsOptions || {};
@@ -182,7 +181,7 @@ const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean 
     const { type: cornersDotType, ...restOfCornersDotOptions } = cornersDotOptions || {};
     const { aspectRatio, ...restOfImageOptions } = imageOptions || {};
 
-    const libOptions: Partial<LibOptions> = {
+    const libOptions = {
       ...restOfOptions,
       data: options.data || ' ',
       dotsOptions: {
@@ -191,7 +190,7 @@ const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean 
       },
       cornersSquareOptions: {
         ...restOfCornersSquareOptions,
-        type: (['drop', 'extra-rounded', 'dot', 'square'].includes(cornersSquareType || '')) ? 'square' : cornersSquareType as any,
+        type: (['drop', 'extra-rounded', 'dot', 'square'].includes(cornersSquareType || '')) ? 'square' : cornersSquareType,
       },
       cornersDotOptions: {
           ...restOfCornersDotOptions,
@@ -202,8 +201,8 @@ const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean 
     return new QRCodeStyling(libOptions);
   }, [options]);
 
-  const previewRef = useRef<HTMLDivElement>(null);
-  const [downloading, setDownloading] = useState<number | false>(false);
+  const previewRef = useRef(null);
+  const [downloading, setDownloading] = useState<number | null>(null);
 
   useEffect(() => {
     if (previewRef.current && qrInstance) {
@@ -221,9 +220,7 @@ const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean 
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error("Could not get canvas context");
         
-        const v = await Canvg.from(ctx, svgString, {
-            fetch: (url: string) => fetch(url).then(res => res.text()).then(text => ({ text, headers: new Headers()})) as any,
-        });
+        const v = await Canvg.from(ctx, svgString);
         await v.render();
 
         const blob = await canvas.convertToBlob({ type: 'image/png' });
@@ -237,7 +234,7 @@ const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean 
     } catch (error) {
       console.error("Failed to download QR code", error);
     } finally {
-      setDownloading(false);
+      setDownloading(null);
     }
   };
 
@@ -253,7 +250,7 @@ const QrCodePreview: React.FC<{ options: QrCodeOptions, showDownloads?: boolean 
                     <button
                         key={size}
                         onClick={() => handleDownload(size)}
-                        disabled={!!downloading}
+                        disabled={downloading !== null}
                         className="bg-[#2a2a2a] border border-[#3a3a3a] text-gray-300 font-medium py-2 px-2 rounded-lg hover:bg-[#3a3a3a] hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {downloading === size ? (

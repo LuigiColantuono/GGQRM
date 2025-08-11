@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from 'https://esm.sh/react@19.1.1';
-import { QrCodeData, QrCodeOptions, QrCodeType, SavedQrCode } from './types.js';
-import Sidebar from './components/Sidebar.js';
-import MainContent from './components/MainContent.js';
-import Dashboard from './components/Dashboard.js';
-import SettingsModal from './components/SettingsModal.js';
-import { DEFAULT_QR_CODE_OPTIONS } from './constants.js';
+import React, { useState, useEffect } from 'react';
+import Sidebar from './components/Sidebar.jsx';
+import MainContent from './components/MainContent.jsx';
+import Dashboard from './components/Dashboard.jsx';
+import SettingsModal from './components/SettingsModal.jsx';
+import { DEFAULT_QR_CODE_OPTIONS } from './constants.jsx';
 
-const App: React.FC = () => {
-  const [view, setView] = useState<'editor' | 'dashboard'>('editor');
-  const [qrCodeType, setQrCodeType] = useState<QrCodeType>('url');
+const App = () => {
+  const [view, setView] = useState('editor');
+  const [qrCodeType, setQrCodeType] = useState('url');
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   
-  const [qrCodeData, setQrCodeData] = useState<QrCodeData>({
+  const [qrCodeData, setQrCodeData] = useState({
     url: 'https://www.google.com',
     text: 'Hello World',
     wifi: { ssid: '', password: '', encryption: 'WPA' },
     payment: { type: 'paypal', details: { recipient: '', amount: '' } },
     whatsapp: { phone: '', message: '' },
   });
-  const [qrOptions, setQrOptions] = useState<QrCodeOptions>(DEFAULT_QR_CODE_OPTIONS);
+  const [qrOptions, setQrOptions] = useState(DEFAULT_QR_CODE_OPTIONS);
   
-  const [savedQRCodes, setSavedQRCodes] = useState<SavedQrCode[]>(() => {
+  const [savedQRCodes, setSavedQRCodes] = useState(() => {
     try {
       const item = window.localStorage.getItem('savedQRCodes');
       return item ? JSON.parse(item) : [];
@@ -31,7 +30,7 @@ const App: React.FC = () => {
     }
   });
 
-  const [localHost, setLocalHost] = useState<string>(() => {
+  const [localHost, setLocalHost] = useState(() => {
     try {
       return window.localStorage.getItem('localHost') || '';
     } catch (error) {
@@ -48,7 +47,7 @@ const App: React.FC = () => {
     if (scanId) {
         setIsRedirecting(true);
         try {
-            const storedCodes: SavedQrCode[] = JSON.parse(window.localStorage.getItem('savedQRCodes') || '[]');
+            const storedCodes = JSON.parse(window.localStorage.getItem('savedQRCodes') || '[]');
             const codeToScan = storedCodes.find(c => c.id === scanId);
 
             if (codeToScan) {
@@ -75,7 +74,7 @@ const App: React.FC = () => {
   
   // Effect to sync state across multiple tabs
   useEffect(() => {
-    const handleStorageChange = (event: StorageEvent) => {
+    const handleStorageChange = (event) => {
       if (event.key === 'savedQRCodes' && event.newValue) {
         try {
           setSavedQRCodes(JSON.parse(event.newValue));
@@ -112,7 +111,7 @@ const App: React.FC = () => {
   }, [localHost]);
 
 
-  const getQrString = (): string => {
+  const getQrString = () => {
     switch (qrCodeType) {
       case 'url':
         return qrCodeData.url;
@@ -141,7 +140,7 @@ const App: React.FC = () => {
     }
   };
   
-  const handleSaveQrCode = (name: string) => {
+  const handleSaveQrCode = (name) => {
     const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     const protocol = window.location.protocol;
@@ -149,7 +148,7 @@ const App: React.FC = () => {
     const host = localHost || window.location.hostname;
     const trackingUrl = `${protocol}//${host}${port}${window.location.pathname}?scan=${newId}`;
 
-    const newCode: SavedQrCode = {
+    const newCode = {
       id: newId,
       name,
       qrCodeType,
@@ -164,11 +163,11 @@ const App: React.FC = () => {
     setView('dashboard');
   };
 
-  const handleDeleteQrCode = (id: string) => {
+  const handleDeleteQrCode = (id) => {
     setSavedQRCodes(prev => prev.filter(code => code.id !== id));
   };
 
-  const handleEditQrCode = (code: SavedQrCode) => {
+  const handleEditQrCode = (code) => {
     setQrCodeType(code.qrCodeType);
     setQrCodeData(code.qrCodeData);
     setQrOptions(code.options);

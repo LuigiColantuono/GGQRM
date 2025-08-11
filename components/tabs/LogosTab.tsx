@@ -1,12 +1,6 @@
-import React, { useRef } from 'https://esm.sh/react@19.1.1';
-import { QrCodeOptions } from '../../types.js';
+import React, { useRef } from 'react';
 
-interface LogosTabProps {
-  options: QrCodeOptions;
-  setOptions: React.Dispatch<React.SetStateAction<QrCodeOptions>>;
-}
-
-const LogosTab: React.FC<LogosTabProps> = ({ options, setOptions }) => {
+const LogosTab = ({ options, setOptions }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,8 +8,8 @@ const LogosTab: React.FC<LogosTabProps> = ({ options, setOptions }) => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (readEvent) => {
-        const newImageUrl = readEvent.target?.result as string;
-        if (newImageUrl) {
+        const newImageUrl = readEvent.target?.result;
+        if (newImageUrl && typeof newImageUrl === 'string') {
             const img = new Image();
             img.onload = () => {
                 const aspectRatio = img.naturalWidth / img.naturalHeight;

@@ -1,23 +1,13 @@
-import React, { useState } from 'https://esm.sh/react@19.1.1';
-import { QrCodeOptions } from '../types.js';
-import QrCodePreview from './QrCodePreview.js';
-import ShapesTab from './tabs/ShapesTab.js';
-import ColorsTab from './tabs/ColorsTab.js';
-import LogosTab from './tabs/LogosTab.js';
-import { DEFAULT_QR_CODE_OPTIONS } from '../constants.js';
-import Modal from './Modal.js';
+import React, { useState } from 'react';
+import QrCodePreview from './QrCodePreview.jsx';
+import ShapesTab from './tabs/ShapesTab.jsx';
+import ColorsTab from './tabs/ColorsTab.jsx';
+import LogosTab from './tabs/LogosTab.jsx';
+import { DEFAULT_QR_CODE_OPTIONS } from '../constants.jsx';
+import Modal from './Modal.jsx';
 
-interface QrCodeCustomizerProps {
-  options: QrCodeOptions;
-  setOptions: React.Dispatch<React.SetStateAction<QrCodeOptions>>;
-  finalQrString: string;
-  onSave: (name: string) => void;
-}
-
-type Tab = 'COLORS' | 'SHAPES' | 'LOGOS';
-
-const QrCodeCustomizer: React.FC<QrCodeCustomizerProps> = ({ options, setOptions, finalQrString, onSave }) => {
-  const [activeTab, setActiveTab] = useState<Tab>('SHAPES');
+const QrCodeCustomizer = ({ options, setOptions, finalQrString, onSave }) => {
+  const [activeTab, setActiveTab] = useState('SHAPES');
   const [add3dEffect, setAdd3dEffect] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [qrCodeName, setQrCodeName] = useState('');
@@ -27,7 +17,7 @@ const QrCodeCustomizer: React.FC<QrCodeCustomizerProps> = ({ options, setOptions
     setAdd3dEffect(false);
   };
   
-  const handle3dEffectToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handle3dEffectToggle = (e) => {
     const isChecked = e.target.checked;
     setAdd3dEffect(isChecked);
     if(isChecked) {
@@ -63,7 +53,7 @@ const QrCodeCustomizer: React.FC<QrCodeCustomizerProps> = ({ options, setOptions
     setIsSaveModalOpen(true);
   };
   
-  const handleConfirmSave = (e: React.FormEvent) => {
+  const handleConfirmSave = (e) => {
     e.preventDefault();
     if (qrCodeName && qrCodeName.trim() !== '') {
         onSave(qrCodeName.trim());
@@ -72,7 +62,7 @@ const QrCodeCustomizer: React.FC<QrCodeCustomizerProps> = ({ options, setOptions
   };
 
 
-  const tabs: { id: Tab; label: string }[] = [
+  const tabs = [
     { id: 'COLORS', label: 'Colors' },
     { id: 'SHAPES', label: 'Shapes' },
     { id: 'LOGOS', label: 'Logos' },

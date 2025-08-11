@@ -1,13 +1,4 @@
-import React from 'https://esm.sh/react@19.1.1';
-import { QrCodeType } from '../types.js';
-
-interface SidebarProps {
-  selectedType: QrCodeType;
-  onSelectType: (type: QrCodeType) => void;
-  view: 'editor' | 'dashboard';
-  onSelectView: (view: 'editor' | 'dashboard') => void;
-  onOpenSettings: () => void;
-}
+import React from 'react';
 
 const LinkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>;
 const TextIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>;
@@ -22,18 +13,18 @@ const DashboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h
 const SettingsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedType, onSelectType, view, onSelectView, onOpenSettings }) => {
-  const handleTypeSelect = (type: QrCodeType) => {
+const Sidebar = ({ selectedType, onSelectType, view, onSelectView, onOpenSettings }) => {
+  const handleTypeSelect = (type) => {
     onSelectType(type);
     onSelectView('editor');
   };
 
   const navItems = [
-    { id: 'url' as QrCodeType, label: 'URL', icon: <LinkIcon /> },
-    { id: 'text' as QrCodeType, label: 'Text', icon: <TextIcon /> },
-    { id: 'whatsapp' as QrCodeType, label: 'WhatsApp', icon: <WhatsAppIcon /> },
-    { id: 'wifi' as QrCodeType, label: 'Wi-Fi', icon: <WifiIcon /> },
-    { id: 'payment' as QrCodeType, label: 'Payment', icon: <PaymentIcon /> },
+    { id: 'url', label: 'URL', icon: <LinkIcon /> },
+    { id: 'text', label: 'Text', icon: <TextIcon /> },
+    { id: 'whatsapp', label: 'WhatsApp', icon: <WhatsAppIcon /> },
+    { id: 'wifi', label: 'Wi-Fi', icon: <WifiIcon /> },
+    { id: 'payment', label: 'Payment', icon: <PaymentIcon /> },
   ];
 
   return (

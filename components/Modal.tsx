@@ -1,13 +1,6 @@
-import React from 'https://esm.sh/react@19.1.1';
+import React from 'react';
 
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-}
-
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (

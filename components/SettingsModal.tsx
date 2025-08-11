@@ -1,14 +1,7 @@
-import React, { useState } from 'https://esm.sh/react@19.1.1';
-import Modal from './Modal.js';
+import React, { useState } from 'react';
+import Modal from './Modal.jsx';
 
-interface SettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  currentHost: string;
-  onSaveHost: (host: string) => void;
-}
-
-const InstructionAccordion: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => {
+const InstructionAccordion = ({ title, children }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="border border-[#3a3a3a] rounded-md">
@@ -36,7 +29,7 @@ const InstructionAccordion: React.FC<{ title: string; children: React.ReactNode 
     );
 };
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentHost, onSaveHost }) => {
+const SettingsModal = ({ isOpen, onClose, currentHost, onSaveHost }) => {
   const [host, setHost] = useState(currentHost);
 
   const handleSave = () => {
