@@ -1,5 +1,5 @@
 import React, { useRef } from 'https://esm.sh/react@19.1.1';
-import { QrCodeOptions } from '../../types.ts';
+import { QrCodeOptions } from '../../types.js';
 
 interface LogosTabProps {
   options: QrCodeOptions;

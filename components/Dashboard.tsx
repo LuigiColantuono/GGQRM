@@ -1,7 +1,7 @@
 import React, { useState } from 'https://esm.sh/react@19.1.1';
-import { SavedQrCode } from '../types.ts';
-import QrCodePreview from './QrCodePreview.tsx';
-import Modal from './Modal.tsx';
+import { SavedQrCode } from '../types.js';
+import QrCodePreview from './QrCodePreview.js';
+import Modal from './Modal.js';
 
 interface DashboardProps {
     savedQRCodes: SavedQrCode[];

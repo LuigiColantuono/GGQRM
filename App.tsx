@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'https://esm.sh/react@19.1.1';
-import { QrCodeData, QrCodeOptions, QrCodeType, SavedQrCode } from './types.ts';
-import Sidebar from './components/Sidebar.tsx';
-import MainContent from './components/MainContent.tsx';
-import Dashboard from './components/Dashboard.tsx';
-import SettingsModal from './components/SettingsModal.tsx';
-import { DEFAULT_QR_CODE_OPTIONS } from './constants.tsx';
+import { QrCodeData, QrCodeOptions, QrCodeType, SavedQrCode } from './types.js';
+import Sidebar from './components/Sidebar.js';
+import MainContent from './components/MainContent.js';
+import Dashboard from './components/Dashboard.js';
+import SettingsModal from './components/SettingsModal.js';
+import { DEFAULT_QR_CODE_OPTIONS } from './constants.js';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'editor' | 'dashboard'>('editor');
