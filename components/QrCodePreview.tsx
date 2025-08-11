@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import QRCodeStyling from 'qr-code-styling';
+import QRCodeStyling, { Options as LibOptions } from 'qr-code-styling';
 import { Canvg } from 'canvg';
-import { ELEGANT_CROSS_SVG_PATH } from '../constants.jsx';
+import { QrCodeOptions, CornerSquareType } from '../types';
+import { ELEGANT_CROSS_SVG_PATH } from '../constants';
 
-const DOT_SHAPE_PATHS = {
+const DOT_SHAPE_PATHS: Record<string, string> = {
     square: 'M 0 0 H 1 V 1 H 0 Z',
     dots: 'M 0.5,0.5 m -0.5,0 a 0.5,0.5 0 1,0 1,0 a 0.5,0.5 0 1,0 -1,0',
     rounded: 'M 0.2,0 H 0.8 A 0.2,0.2 0 0 1 1,0.2 V 0.8 A 0.2,0.2 0 0 1 0.8,1 H 0.2 A 0.2,0.2 0 0 1 0,0.8 V 0.2 A 0.2,0.2 0 0 1 0.2,0 Z',
@@ -13,20 +14,20 @@ const DOT_SHAPE_PATHS = {
 };
 
 // All eye paths are defined in a 7x7 module coordinate system, centered at (0,0)
-const EYE_FRAME_PATHS = {
+const EYE_FRAME_PATHS: Record<string, string> = {
     square: 'M41,7V41H7V7H41m7-7H0V48H48V0Z',
     'extra-rounded': 'M33,7a8,8,0,0,1,8,8V33a8,8,0,0,1-8,8H15a8,8,0,0,1-8-8V15a8,8,0,0,1,8-8H33m0-7H15A15,15,0,0 ,0,0,15V33A15,15,0,0,0,15,48H33A15,15,0,0,0,48,33V15A15,15,0,0,0,33,0Z',
     dot: 'M24,7A17,17,0,1,1,7,24,17,17,0,0,1,24,7m0-7A24,24,0,1,0,48,24,24,24,0,0,0,24,0Z',
     drop: 'M30.87,7A10.14,10.14,0,0,1,41,17.13V41H17.13A10.14,10.14,0,0,1, 7,30.87V17.13A10.14,10.14,0,0,1,17.13,7H30.87m0-7H17.13A17.13,17.13 ,0,0,0,0,17.13V30.87A17.13,17.13,0,0,0,17.13,48H41.32A6.68,6.68,0,0 ,0,48,41.32V17.13A17.13,17.13,0,0,0,30.87,0Z'
 };
 
-const EYE_BALL_PATHS = {
+const EYE_BALL_PATHS: Record<string, string> = {
     square: 'M -1.2 -1.2 H 1.2 V 1.2 H -1.2 Z',
     dot: 'M0 -1.2 A1.2 1.2 0 1 1 0 1.2 A1.2 1.2 0 1 1 0 -1.2 Z',
     oval: 'M0 -1.5 A1.2 1.5 0 1 1 0 1.5 A1.2 1.5 0 1 1 0 -1.5 Z',
 }
 
-const generateQrSvg = (qrInstance, options) => {
+const generateQrSvg = (qrInstance: QRCodeStyling | null, options: QrCodeOptions): string => {
     if (!qrInstance || !qrInstance._qr) return '';
     
     const count = qrInstance._qr.getModuleCount();
@@ -48,12 +49,12 @@ const generateQrSvg = (qrInstance, options) => {
     if (qrContentSize <= 0) return '';
     const dotSize = qrContentSize / count;
 
-    const getFill = (opts, id) => {
+    const getFill = (opts: any, id: string) => {
         if (opts?.gradient) {
             const rotation = opts.gradient.rotation || 0;
             const x1 = Math.round(Math.cos(rotation) * 100);
             const y1 = Math.round(Math.sin(rotation) * 100);
-            const stops = opts.gradient.colorStops.map((cs) => `<stop offset="${cs.offset * 100}%" stop-color="${cs.color}" />`).join('');
+            const stops = opts.gradient.colorStops.map((cs: any) => `<stop offset="${cs.offset * 100}%" stop-color="${cs.color}" />`).join('');
             return {
                 def: `<linearGradient id="${id}" x1="0%" y1="0%" x2="${x1}%" y2="${y1}%">${stops}</linearGradient>`,
                 fill: `url(#${id})`
@@ -68,18 +69,18 @@ const generateQrSvg = (qrInstance, options) => {
 
     let defs = `<defs>${dotsFill.def}${cornersSquareFill.def}${cornersDotFill.def}</defs>`;
     
-    let dotPaths = [];
-    let eyePaths = [];
+    let dotPaths: string[] = [];
+    let eyePaths: string[] = [];
 
-    const isEye = (r, c) => (r < 7 && c < 7) || (r < 7 && c > count - 8) || (r > count - 8 && c < 7);
+    const isEye = (r: number, c: number) => (r < 7 && c < 7) || (r < 7 && c > count - 8) || (r > count - 8 && c < 7);
 
-    let logoSafeZone = null;
+    let logoSafeZone: { x: number; y: number; width: number; height: number } | null = null;
     if (imageUrl && imageOptions?.hideBackgroundDots) {
         const imageSizeFactor = imageOptions.imageSize || 0.4;
         const aspectRatio = imageOptions.aspectRatio || 1; 
 
-        let safeZoneWidthInModules;
-        let safeZoneHeightInModules;
+        let safeZoneWidthInModules: number;
+        let safeZoneHeightInModules: number;
 
         if (aspectRatio >= 1) { // Landscape or square image
             safeZoneWidthInModules = count * imageSizeFactor;
@@ -173,7 +174,7 @@ const generateQrSvg = (qrInstance, options) => {
 };
 
 
-const QrCodePreview = ({ options, showDownloads = true }) => {
+const QrCodePreview: React.FC<{ options: QrCodeOptions }> = ({ options }) => {
   const qrInstance = useMemo(() => {
     const { dotsOptions, cornersSquareOptions, cornersDotOptions, imageOptions, ...restOfOptions } = options;
     const { size, type: dotsType, ...restOfDotsOptions } = dotsOptions || {};
@@ -181,7 +182,7 @@ const QrCodePreview = ({ options, showDownloads = true }) => {
     const { type: cornersDotType, ...restOfCornersDotOptions } = cornersDotOptions || {};
     const { aspectRatio, ...restOfImageOptions } = imageOptions || {};
 
-    const libOptions = {
+    const libOptions: Partial<LibOptions> = {
       ...restOfOptions,
       data: options.data || ' ',
       dotsOptions: {
@@ -190,7 +191,7 @@ const QrCodePreview = ({ options, showDownloads = true }) => {
       },
       cornersSquareOptions: {
         ...restOfCornersSquareOptions,
-        type: (['drop', 'extra-rounded', 'dot', 'square'].includes(cornersSquareType || '')) ? 'square' : cornersSquareType,
+        type: (['drop', 'extra-rounded', 'dot', 'square'].includes(cornersSquareType || '')) ? 'square' : cornersSquareType as any,
       },
       cornersDotOptions: {
           ...restOfCornersDotOptions,
@@ -201,8 +202,8 @@ const QrCodePreview = ({ options, showDownloads = true }) => {
     return new QRCodeStyling(libOptions);
   }, [options]);
 
-  const previewRef = useRef(null);
-  const [downloading, setDownloading] = useState<number | null>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState<number | false>(false);
 
   useEffect(() => {
     if (previewRef.current && qrInstance) {
@@ -215,12 +216,14 @@ const QrCodePreview = ({ options, showDownloads = true }) => {
     setDownloading(size);
 
     try {
-        const svgString = generateQrSvg(qrInstance, { ...options, width: size, height: size, margin: (options.margin || 0) * (size / (options.width || 450)) });
+        const svgString = generateQrSvg(qrInstance, { ...options, width: size, height: size, margin: (options.margin || 0) * (size / options.width!) });
         const canvas = new OffscreenCanvas(size, size);
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error("Could not get canvas context");
         
-        const v = await Canvg.from(ctx, svgString);
+        const v = await Canvg.from(ctx, svgString, {
+            fetch: (url: string) => fetch(url).then(res => res.text()).then(text => ({ text, headers: new Headers()})) as any,
+        });
         await v.render();
 
         const blob = await canvas.convertToBlob({ type: 'image/png' });
@@ -234,7 +237,7 @@ const QrCodePreview = ({ options, showDownloads = true }) => {
     } catch (error) {
       console.error("Failed to download QR code", error);
     } finally {
-      setDownloading(null);
+      setDownloading(false);
     }
   };
 
@@ -242,33 +245,31 @@ const QrCodePreview = ({ options, showDownloads = true }) => {
 
   return (
      <div className="flex flex-col items-center">
-      <div ref={previewRef} style={{width: options.width, height: options.height}} className="bg-[#121212] border border-[#2a2a2a] rounded-lg overflow-hidden"/>
-      {showDownloads && (
-        <div style={{width: options.width}} className="mt-4">
-            <div className="grid grid-cols-3 gap-2">
-                {downloadSizes.map((size) => (
-                    <button
-                        key={size}
-                        onClick={() => handleDownload(size)}
-                        disabled={downloading !== null}
-                        className="bg-[#2a2a2a] border border-[#3a3a3a] text-gray-300 font-medium py-2 px-2 rounded-lg hover:bg-[#3a3a3a] hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {downloading === size ? (
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                        )}
-                        <span className="text-sm">{size}px</span>
-                    </button>
-                ))}
-            </div>
+      <div ref={previewRef} className="w-[450px] h-[450px] bg-[#121212] border border-[#2a2a2a] rounded-lg overflow-hidden"/>
+      <div className="w-[450px] mt-4">
+        <div className="grid grid-cols-3 gap-2">
+            {downloadSizes.map((size) => (
+                <button
+                    key={size}
+                    onClick={() => handleDownload(size)}
+                    disabled={!!downloading}
+                    className="bg-[#2a2a2a] border border-[#3a3a3a] text-gray-300 font-medium py-2 px-2 rounded-lg hover:bg-[#3a3a3a] hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {downloading === size ? (
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    )}
+                    <span className="text-sm">{size}px</span>
+                </button>
+            ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };

@@ -1,41 +1,56 @@
-import React, { useRef } from 'react';
 
-const LogosTab = ({ options, setOptions }) => {
+
+import React, { useRef } from 'react';
+import { QrCodeOptions } from '../../types';
+
+interface LogosTabProps {
+  options: QrCodeOptions;
+  setOptions: React.Dispatch<React.SetStateAction<QrCodeOptions>>;
+}
+
+const LogosTab: React.FC<LogosTabProps> = ({ options, setOptions }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (readEvent) => {
-        const newImageUrl = readEvent.target?.result;
-        if (newImageUrl && typeof newImageUrl === 'string') {
-            const img = new Image();
-            img.onload = () => {
-                const aspectRatio = img.naturalWidth / img.naturalHeight;
-                setOptions(prev => ({
-                    ...prev,
-                    image: newImageUrl,
-                    imageOptions: {
-                        ...(prev.imageOptions || {}),
-                        hideBackgroundDots: true,
-                        aspectRatio: aspectRatio,
-                    }
-                }));
-            };
-            img.onerror = () => {
-                console.error("Failed to load image to get dimensions.");
-                setOptions(prev => ({ ...prev, image: newImageUrl }));
-            };
-            img.src = newImageUrl;
-        }
+      const newImageUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        setOptions(prev => {
+          if (prev.image && prev.image.startsWith('blob:')) {
+            URL.revokeObjectURL(prev.image);
+          }
+          return {
+            ...prev,
+            image: newImageUrl,
+            imageOptions: {
+              ...(prev.imageOptions || {}),
+              hideBackgroundDots: true,
+              aspectRatio: aspectRatio,
+            }
+          };
+        });
       };
-      reader.readAsDataURL(file);
+      img.onerror = () => {
+        console.error("Failed to load image to get dimensions.");
+        setOptions(prev => {
+          if (prev.image && prev.image.startsWith('blob:')) {
+            URL.revokeObjectURL(prev.image);
+          }
+          return { ...prev, image: newImageUrl };
+        });
+      }
+      img.src = newImageUrl;
     }
   };
   
   const removeImage = () => {
     setOptions(prev => {
+      if (prev.image && prev.image.startsWith('blob:')) {
+        URL.revokeObjectURL(prev.image);
+      }
       const newOptions = { ...prev };
       delete newOptions.image;
       if (newOptions.imageOptions) {
@@ -68,11 +83,11 @@ const LogosTab = ({ options, setOptions }) => {
 
         {options.image && (
              <div className="mt-4 p-2 bg-[#2a2a2a] rounded-lg flex items-center justify-between">
-                <div className="flex items-center space-x-2 overflow-hidden">
-                    <img src={options.image} alt="logo preview" className="w-10 h-10 rounded-md object-contain flex-shrink-0" />
-                    <span className="text-sm text-gray-300 truncate">logo-image</span>
+                <div className="flex items-center space-x-2">
+                    <img src={options.image} alt="logo preview" className="w-10 h-10 rounded-md object-contain" />
+                    <span className="text-sm text-gray-300 truncate">logo-image.png</span>
                 </div>
-                <button onClick={removeImage} className="text-gray-400 hover:text-white flex-shrink-0">
+                <button onClick={removeImage} className="text-gray-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>

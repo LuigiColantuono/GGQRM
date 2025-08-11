@@ -1,7 +1,7 @@
 {
-  "name": "gg-qr-manager-for-deploy-(github-page)",
-  "private": true,
-  "version": "0.0.0",
+  "name": "GG-QR-Manager",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,8 +23,8 @@
     "vite": "^6.3.5"
   },
   "description": "This contains everything you need to run your app locally.",
-  "main": "index.js",
+  "main": "index.html",
   "keywords": [],
-  "author": "",
+  "author": "Luigi Colantuono",
   "license": "ISC"
 }

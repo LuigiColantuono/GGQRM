@@ -1,17 +1,31 @@
-import React from 'react';
-import { BODY_SHAPES, EYE_FRAME_SHAPES, EYE_BALL_SHAPES } from '../../constants.jsx';
 
-const OptionGroup = ({ title, children }) => (
+
+
+
+import React from 'react';
+import { QrCodeOptions, DotType, CornerSquareType, CornerDotType, ShapeOption } from '../../types';
+import { BODY_SHAPES, EYE_FRAME_SHAPES, EYE_BALL_SHAPES } from '../../constants';
+
+interface ShapesTabProps {
+  options: QrCodeOptions;
+  setOptions: React.Dispatch<React.SetStateAction<QrCodeOptions>>;
+}
+
+const OptionGroup: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-300 mb-3">{title}</h3>
         {children}
     </div>
 );
 
-const ShapeSelector = ({
+const ShapeSelector = <T extends string>({
     options,
     selectedValue,
     onChange,
+}: {
+    options: readonly ShapeOption<T>[];
+    selectedValue: T;
+    onChange: (value: T) => void;
 }) => (
     <div className="grid grid-cols-7 gap-1">
         {options.map((option) => (
@@ -36,21 +50,21 @@ const ShapeSelector = ({
 );
 
 
-const ShapesTab = ({ options, setOptions }) => {
+const ShapesTab: React.FC<ShapesTabProps> = ({ options, setOptions }) => {
 
-  const handleBodyChange = (type) => {
+  const handleBodyChange = (type: DotType) => {
     setOptions(prev => ({...prev, dotsOptions: { ...(prev.dotsOptions || {}), type }}));
   };
 
-  const handleEyeFrameChange = (type) => {
+  const handleEyeFrameChange = (type: CornerSquareType) => {
     setOptions(prev => ({...prev, cornersSquareOptions: { ...(prev.cornersSquareOptions || {}), type }}));
   };
 
-  const handleEyeBallChange = (type) => {
+  const handleEyeBallChange = (type: CornerDotType) => {
     setOptions(prev => ({...prev, cornersDotOptions: { ...(prev.cornersDotOptions || {}), type }}));
   };
   
-  const handleDotSizeChange = (size) => {
+  const handleDotSizeChange = (size: number) => {
     setOptions(prev => ({...prev, dotsOptions: { ...(prev.dotsOptions || {}), size }}));
   };
 
