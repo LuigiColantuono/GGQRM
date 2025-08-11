@@ -1,5 +1,5 @@
-import React from 'react';
-import { QrCodeOptions, DotType, CornerSquareType, CornerDotType, ShapeOption } from './types';
+import React from 'https://esm.sh/react@19.1.1';
+import { QrCodeOptions, DotType, CornerSquareType, CornerDotType, ShapeOption } from './types.ts';
 
 export const DEFAULT_QR_CODE_OPTIONS: QrCodeOptions = {
   width: 450,

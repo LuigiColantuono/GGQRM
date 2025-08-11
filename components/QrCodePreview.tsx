@@ -1,8 +1,8 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
-import QRCodeStyling, { Options as LibOptions } from 'qr-code-styling';
-import { Canvg } from 'canvg';
-import { QrCodeOptions, CornerSquareType } from '../types';
-import { ELEGANT_CROSS_SVG_PATH } from '../constants';
+import React, { useRef, useEffect, useState, useMemo } from 'https://esm.sh/react@19.1.1';
+import QRCodeStyling, { Options as LibOptions } from 'https://esm.sh/qr-code-styling@1.9.2';
+import { Canvg } from 'https://esm.sh/canvg@4.0.2';
+import { QrCodeOptions, CornerSquareType } from '../types.ts';
+import { ELEGANT_CROSS_SVG_PATH } from '../constants.tsx';
 
 const DOT_SHAPE_PATHS: Record<string, string> = {
     square: 'M 0 0 H 1 V 1 H 0 Z',

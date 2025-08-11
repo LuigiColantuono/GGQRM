@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import Modal from './Modal';
+import React, { useState } from 'https://esm.sh/react@19.1.1';
+import Modal from './Modal.tsx';
 
 interface SettingsModalProps {
   isOpen: boolean;

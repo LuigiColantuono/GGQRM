@@ -1,7 +1,7 @@
-import React from 'react';
-import { QrCodeData, QrCodeOptions, QrCodeType } from '../types';
-import ContentInput from './ContentInput';
-import QrCodeCustomizer from './QrCodeCustomizer';
+import React from 'https://esm.sh/react@19.1.1';
+import { QrCodeData, QrCodeOptions, QrCodeType } from '../types.ts';
+import ContentInput from './ContentInput.tsx';
+import QrCodeCustomizer from './QrCodeCustomizer.tsx';
 
 interface MainContentProps {
   qrCodeType: QrCodeType;

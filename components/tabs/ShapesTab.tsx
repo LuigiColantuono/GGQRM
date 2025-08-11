@@ -1,10 +1,6 @@
-
-
-
-
-import React from 'react';
-import { QrCodeOptions, DotType, CornerSquareType, CornerDotType, ShapeOption } from '../../types';
-import { BODY_SHAPES, EYE_FRAME_SHAPES, EYE_BALL_SHAPES } from '../../constants';
+import React from 'https://esm.sh/react@19.1.1';
+import { QrCodeOptions, DotType, CornerSquareType, CornerDotType, ShapeOption } from '../../types.ts';
+import { BODY_SHAPES, EYE_FRAME_SHAPES, EYE_BALL_SHAPES } from '../../constants.tsx';
 
 interface ShapesTabProps {
   options: QrCodeOptions;

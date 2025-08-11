@@ -1,4 +1,5 @@
-import type { Options, DotType as LibDotType, CornerSquareType as LibCornerSquareType, CornerDotType as LibCornerDotType } from 'qr-code-styling';
+import type { Options, DotType as LibDotType, CornerSquareType as LibCornerSquareType, CornerDotType as LibCornerDotType } from 'https://esm.sh/qr-code-styling@1.9.2';
+import type React from 'https://esm.sh/react@19.1.1';
 
 export type QrCodeType = 'url' | 'text' | 'wifi' | 'payment' | 'whatsapp';
 

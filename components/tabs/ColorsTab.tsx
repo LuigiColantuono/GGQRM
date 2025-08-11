@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { QrCodeOptions } from '../../types';
+import React from 'https://esm.sh/react@19.1.1';
+import { QrCodeOptions } from '../../types.ts';
 
 interface ColorsTabProps {
   options: QrCodeOptions;
