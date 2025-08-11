@@ -1,13 +1,6 @@
-
 import React from 'react';
-import { QrCodeOptions } from '../../types';
 
-interface ColorsTabProps {
-  options: QrCodeOptions;
-  setOptions: React.Dispatch<React.SetStateAction<QrCodeOptions>>;
-}
-
-const ColorPicker: React.FC<{ label: string; color: string; onChange: (color: string) => void }> = ({ label, color, onChange }) => (
+const ColorPicker = ({ label, color, onChange }) => (
     <div className="flex items-center justify-between">
         <label className="text-gray-300">{label}</label>
         <div className="relative">
@@ -26,8 +19,8 @@ const ColorPicker: React.FC<{ label: string; color: string; onChange: (color: st
     </div>
 );
 
-const ColorsTab: React.FC<ColorsTabProps> = ({ options, setOptions }) => {
-  const handleColorChange = (key: 'dotsOptions' | 'cornersSquareOptions' | 'cornersDotOptions' | 'backgroundOptions', color: string) => {
+const ColorsTab = ({ options, setOptions }) => {
+  const handleColorChange = (key, color) => {
     setOptions(prev => ({...prev, [key]: {...(prev[key] || {}), color}}));
   };
     

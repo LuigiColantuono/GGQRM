@@ -1,21 +1,117 @@
-import React, { useState } from 'react';
-import { QrCodeData, QrCodeOptions, QrCodeType } from './types';
-import Sidebar from './components/Sidebar';
-import MainContent from './components/MainContent';
-import { DEFAULT_QR_CODE_OPTIONS } from './constants';
+import React, { useState, useEffect } from 'react';
+import Sidebar from './components/Sidebar.jsx';
+import MainContent from './components/MainContent.jsx';
+import Dashboard from './components/Dashboard.jsx';
+import SettingsModal from './components/SettingsModal.jsx';
+import { DEFAULT_QR_CODE_OPTIONS } from './constants.jsx';
 
-const App: React.FC = () => {
-  const [qrCodeType, setQrCodeType] = useState<QrCodeType>('url');
-  const [qrCodeData, setQrCodeData] = useState<QrCodeData>({
+const App = () => {
+  const [view, setView] = useState('editor');
+  const [qrCodeType, setQrCodeType] = useState('url');
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  
+  const [qrCodeData, setQrCodeData] = useState({
     url: 'https://www.google.com',
     text: 'Hello World',
     wifi: { ssid: '', password: '', encryption: 'WPA' },
     payment: { type: 'paypal', details: { recipient: '', amount: '' } },
     whatsapp: { phone: '', message: '' },
   });
-  const [qrOptions, setQrOptions] = useState<QrCodeOptions>(DEFAULT_QR_CODE_OPTIONS);
+  const [qrOptions, setQrOptions] = useState(DEFAULT_QR_CODE_OPTIONS);
+  
+  const [savedQRCodes, setSavedQRCodes] = useState(() => {
+    try {
+      const item = window.localStorage.getItem('savedQRCodes');
+      return item ? JSON.parse(item) : [];
+    } catch (error) {
+      console.error("Error reading savedQRCodes from localStorage", error);
+      return [];
+    }
+  });
 
-  const getQrString = (): string => {
+  const [localHost, setLocalHost] = useState(() => {
+    try {
+      return window.localStorage.getItem('localHost') || '';
+    } catch (error) {
+      console.error("Error reading localHost from localStorage", error);
+      return '';
+    }
+  });
+
+  // Effect to handle scan tracking and redirection
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scanId = urlParams.get('scan');
+
+    if (scanId) {
+        setIsRedirecting(true);
+        try {
+            const storedCodes = JSON.parse(window.localStorage.getItem('savedQRCodes') || '[]');
+            const codeToScan = storedCodes.find(c => c.id === scanId);
+
+            if (codeToScan) {
+                const updatedCodes = storedCodes.map(c =>
+                    c.id === scanId ? { ...c, scans: c.scans + 1 } : c
+                );
+                window.localStorage.setItem('savedQRCodes', JSON.stringify(updatedCodes));
+                
+                // Add a small delay to ensure the storage event has time to fire in other tabs before redirecting.
+                setTimeout(() => {
+                    window.location.href = codeToScan.finalQrString;
+                }, 100);
+
+            } else {
+                console.error(`QR Code with ID ${scanId} not found.`);
+                window.location.href = window.location.origin + window.location.pathname;
+            }
+        } catch (error) {
+            console.error("Error processing scan:", error);
+            window.location.href = window.location.origin + window.location.pathname;
+        }
+    }
+  }, []);
+  
+  // Effect to sync state across multiple tabs
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === 'savedQRCodes' && event.newValue) {
+        try {
+          setSavedQRCodes(JSON.parse(event.newValue));
+        } catch (error) {
+          console.error("Error syncing state from storage update:", error);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+
+  // Effect to persist savedQRCodes to localStorage
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('savedQRCodes', JSON.stringify(savedQRCodes));
+    } catch (error) {
+      console.error("Error writing savedQRCodes to localStorage", error);
+    }
+  }, [savedQRCodes]);
+  
+  // Effect to persist localHost to localStorage
+  useEffect(() => {
+    try {
+        window.localStorage.setItem('localHost', localHost);
+    } catch (error) {
+        console.error("Error writing localHost to localStorage", error);
+    }
+  }, [localHost]);
+
+
+  const getQrString = () => {
     switch (qrCodeType) {
       case 'url':
         return qrCodeData.url;
@@ -43,19 +139,90 @@ const App: React.FC = () => {
         return '';
     }
   };
+  
+  const handleSaveQrCode = (name) => {
+    const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const protocol = window.location.protocol;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const host = localHost || window.location.hostname;
+    const trackingUrl = `${protocol}//${host}${port}${window.location.pathname}?scan=${newId}`;
+
+    const newCode = {
+      id: newId,
+      name,
+      qrCodeType,
+      qrCodeData,
+      options: qrOptions,
+      finalQrString: getQrString(),
+      trackingUrl: trackingUrl,
+      scans: 0,
+      createdAt: new Date().toISOString(),
+    };
+    setSavedQRCodes(prev => [...prev, newCode]);
+    setView('dashboard');
+  };
+
+  const handleDeleteQrCode = (id) => {
+    setSavedQRCodes(prev => prev.filter(code => code.id !== id));
+  };
+
+  const handleEditQrCode = (code) => {
+    setQrCodeType(code.qrCodeType);
+    setQrCodeData(code.qrCodeData);
+    setQrOptions(code.options);
+    setView('editor');
+  };
+
+  if (isRedirecting) {
+    return (
+      <div className="flex h-screen w-screen justify-center items-center bg-[#121212] text-white">
+        <div className="text-center">
+            <svg className="animate-spin h-8 w-8 text-[#00f0a0] mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="text-lg font-medium">Processing Scan...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-screen bg-[#121212] text-gray-100 font-sans">
-      <Sidebar selectedType={qrCodeType} onSelectType={setQrCodeType} />
-      <MainContent
-        qrCodeType={qrCodeType}
-        qrCodeData={qrCodeData}
-        setQrCodeData={setQrCodeData}
-        qrOptions={qrOptions}
-        setQrOptions={setQrOptions}
-        finalQrString={getQrString()}
+    <>
+      <div className="flex h-screen bg-[#121212] text-gray-100 font-sans">
+        <Sidebar
+          selectedType={qrCodeType}
+          onSelectType={setQrCodeType}
+          view={view}
+          onSelectView={setView}
+          onOpenSettings={() => setIsSettingsModalOpen(true)}
+        />
+        {view === 'editor' ? (
+          <MainContent
+            qrCodeType={qrCodeType}
+            qrCodeData={qrCodeData}
+            setQrCodeData={setQrCodeData}
+            qrOptions={qrOptions}
+            setQrOptions={setQrOptions}
+            finalQrString={getQrString()}
+            onSave={handleSaveQrCode}
+          />
+        ) : (
+          <Dashboard
+            savedQRCodes={savedQRCodes}
+            onEdit={handleEditQrCode}
+            onDelete={handleDeleteQrCode}
+          />
+        )}
+      </div>
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        currentHost={localHost}
+        onSaveHost={setLocalHost}
       />
-    </div>
+    </>
   );
 };
 

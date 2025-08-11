@@ -1,20 +1,13 @@
 import React from 'react';
-import { QrCodeData, QrCodeType } from '../types';
 
-interface ContentInputProps {
-  qrCodeType: QrCodeType;
-  qrCodeData: QrCodeData;
-  setQrCodeData: React.Dispatch<React.SetStateAction<QrCodeData>>;
-}
-
-const InputField: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
+const InputField = (props) => (
   <input
     {...props}
     className="w-full bg-[#2a2a2a] border border-[#3a3a3a] text-white rounded-md p-2 focus:ring-2 focus:ring-[#00f0a0] focus:outline-none"
   />
 );
 
-const SelectField: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) => (
+const SelectField = (props) => (
   <select
     {...props}
     className="w-full bg-[#2a2a2a] border border-[#3a3a3a] text-white rounded-md p-2 focus:ring-2 focus:ring-[#00f0a0] focus:outline-none"
@@ -24,7 +17,7 @@ const SelectField: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (pr
 );
 
 
-const ContentInput: React.FC<ContentInputProps> = ({ qrCodeType, qrCodeData, setQrCodeData }) => {
+const ContentInput = ({ qrCodeType, qrCodeData, setQrCodeData }) => {
   const renderInput = () => {
     switch (qrCodeType) {
       case 'url':
@@ -96,7 +89,7 @@ const ContentInput: React.FC<ContentInputProps> = ({ qrCodeType, qrCodeData, set
             </div>
              <div className="space-y-2">
                 <label className="font-medium">Encryption</label>
-                <SelectField value={qrCodeData.wifi.encryption} onChange={(e) => setQrCodeData({ ...qrCodeData, wifi: { ...qrCodeData.wifi, encryption: e.target.value as any } })}>
+                <SelectField value={qrCodeData.wifi.encryption} onChange={(e) => setQrCodeData({ ...qrCodeData, wifi: { ...qrCodeData.wifi, encryption: e.target.value } })}>
                     <option value="WPA">WPA/WPA2</option>
                     <option value="WEP">WEP</option>
                     <option value="nopass">None</option>
@@ -107,7 +100,7 @@ const ContentInput: React.FC<ContentInputProps> = ({ qrCodeType, qrCodeData, set
       case 'payment':
         return (
           <div className="space-y-4">
-            <SelectField value={qrCodeData.payment.type} onChange={(e) => setQrCodeData({ ...qrCodeData, payment: { ...qrCodeData.payment, type: e.target.value as any } })}>
+            <SelectField value={qrCodeData.payment.type} onChange={(e) => setQrCodeData({ ...qrCodeData, payment: { ...qrCodeData.payment, type: e.target.value } })}>
                 <option value="paypal">PayPal</option>
                 <option value="bitcoin">Bitcoin</option>
             </SelectField>

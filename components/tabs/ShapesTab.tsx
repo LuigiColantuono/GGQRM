@@ -1,31 +1,17 @@
-
-
-
-
 import React from 'react';
-import { QrCodeOptions, DotType, CornerSquareType, CornerDotType, ShapeOption } from '../../types';
-import { BODY_SHAPES, EYE_FRAME_SHAPES, EYE_BALL_SHAPES } from '../../constants';
+import { BODY_SHAPES, EYE_FRAME_SHAPES, EYE_BALL_SHAPES } from '../../constants.jsx';
 
-interface ShapesTabProps {
-  options: QrCodeOptions;
-  setOptions: React.Dispatch<React.SetStateAction<QrCodeOptions>>;
-}
-
-const OptionGroup: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+const OptionGroup = ({ title, children }) => (
     <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-300 mb-3">{title}</h3>
         {children}
     </div>
 );
 
-const ShapeSelector = <T extends string>({
+const ShapeSelector = ({
     options,
     selectedValue,
     onChange,
-}: {
-    options: readonly ShapeOption<T>[];
-    selectedValue: T;
-    onChange: (value: T) => void;
 }) => (
     <div className="grid grid-cols-7 gap-1">
         {options.map((option) => (
@@ -50,21 +36,21 @@ const ShapeSelector = <T extends string>({
 );
 
 
-const ShapesTab: React.FC<ShapesTabProps> = ({ options, setOptions }) => {
+const ShapesTab = ({ options, setOptions }) => {
 
-  const handleBodyChange = (type: DotType) => {
+  const handleBodyChange = (type) => {
     setOptions(prev => ({...prev, dotsOptions: { ...(prev.dotsOptions || {}), type }}));
   };
 
-  const handleEyeFrameChange = (type: CornerSquareType) => {
+  const handleEyeFrameChange = (type) => {
     setOptions(prev => ({...prev, cornersSquareOptions: { ...(prev.cornersSquareOptions || {}), type }}));
   };
 
-  const handleEyeBallChange = (type: CornerDotType) => {
+  const handleEyeBallChange = (type) => {
     setOptions(prev => ({...prev, cornersDotOptions: { ...(prev.cornersDotOptions || {}), type }}));
   };
   
-  const handleDotSizeChange = (size: number) => {
+  const handleDotSizeChange = (size) => {
     setOptions(prev => ({...prev, dotsOptions: { ...(prev.dotsOptions || {}), size }}));
   };
 
